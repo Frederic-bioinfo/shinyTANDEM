@@ -1,0 +1,48 @@
+<style type="text/css">body { padding-top: 60px;}</style>
+
+<!--navbar-static-top = scroll away but no need to mess with body padding -->
+<!--navbar-fixed-top = does not scroll, but body padding needs to be adjusted -->
+<!--navbar-inverse = white on black -->
+
+<div class="navbar navbar-fixed-top navbar-inverse" id="section" data-nav-value="home" >
+  
+  <div class="navbar-inner">
+    
+    <div class="container-fluid">
+      
+      <a class="brand" href="#" data-value="home">rTANDEM</a>
+      <ul class="nav">
+	
+	<li class="dropdown">
+	  <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+	     data-value="analysis">
+	    Analysis<b class="caret"></b>
+	  </a>
+          <ul class="dropdown-menu">
+            <li><a href="#" data-value="param">Create parameters</a></li>
+            <li><a href="#" data-value="launch">Launch analysis</a></li>
+          </ul>
+	</li>
+        
+	<li><a href="#" data-value="convert">Conversions</a></li>
+	<li><a href="#" data-value="load">Load results</a></li>
+	<li><a href="#" data-value="overview">Results Overview</a></li>
+	<li><a href="#" data-value="stats">Results Statistics</a></li>
+	<li><a href="#" data-value="prots">Proteins view</a></li>
+	<li><a href="#" data-value="peps">Peptides view</a></li>
+	
+	<li class="dropdown">
+	  <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+	     data-value="external">
+	    External tools<b class="caret"></b>
+	  </a>
+          <ul class="dropdown-menu">
+            <li><a href="#" data-value="biomart">biomaRt</a></li>
+            <li><a href="#" data-value="gominer">gomineR</a></li>
+          </ul>
+	</li>
+
+      </ul>
+    </div>
+  </div>
+</div>
