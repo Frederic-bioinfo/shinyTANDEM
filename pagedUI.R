@@ -1,9 +1,8 @@
 home.ui <- function() {
   div(
-    h3("This page will contain a rTANDEM logo. In the meantime..."),
-    tags$div(style="max-width:50%",
-      tags$img(src="images/Rlogo.png",
-               alt="Rlogo")
+      tags$div(style="max-width:100%; padding-left:0; padding-top:8%; padding-right:0;margin:0;",
+      tags$img(src="images/rTANDEM_logo.png",
+               alt="rTANDEM logo")
     )
   )
 }
@@ -154,19 +153,19 @@ overview.ui <- function() {
     div(class="well",
       h3("Analysis overview"),
       div( style="max-height: 350px; overflow: auto;",
-        tableOutput("overviewAnalysis")
+        htmlOutput("overviewAnalysis")
       )
     ),
     div(class="well",
       h3("Identified proteins"),
       div(style="max-height: 350px; overflow: auto;",
-        tableOutput("overviewProteins")
+        htmlOutput("overviewProteins")
       )
     ),
     div(class="well",
       h3("Identified peptides"),
       div(style="max-height: 350px; overflow: auto;",
-        tableOutput("overviewPeptides")
+        htmlOutput("overviewPeptides")
       )
     )
   )
@@ -199,10 +198,10 @@ prots.ui <- function() {
     ),#/well protein selection
     div(class="well",
       h3("Selected protein"),
-      tableOutput("tableSelectedProt"),
+      htmlOutput("tableSelectedProt"),
       h3("Peptides from selected protein"),
       div(style="max-height: 350px; overflow: auto;",
-          tableOutput("pepFromSelectProt")
+          htmlOutput("pepFromSelectProt")
       ),
       h3("Protein coverage"),
       div(style="max-height: 350px; overflow: auto;",
@@ -231,4 +230,3 @@ biomart.ui <- function() {
 gominer.ui <- function() {
   h3("This page will provide a GO-information on selected proteins.")
 }
-

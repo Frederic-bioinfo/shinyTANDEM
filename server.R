@@ -11,15 +11,24 @@ shinyServer( function(input, output, session) {
   
   ### Load result from Rdata
   loadedResult1 <- reactive({
-    input$loadFromRda
-    isolate(load(input$resultRda))
-    isolate(return(input$Robj))
+    if( input$loadFromRda > 0) {
+      if( file.access( isolate(input$resultRda), mode=4) == -1 ){
+        warning("File: '", isolate(input$resultRda),"' cannot be read.")
+      }
+      isolate(load(input$resultRda))
+      isolate(return(input$Robj))
+  }
   })
-
+  
   ### Load result from xml
   loadedResult2 <- reactive({
-    input$loadFromXML
-    isolate(GetResultsFromXML(input$resultXML))
+    if( input$loadFromXML > 0) {
+      if( file.access(isolate(input$resultXML), mode=4) == -1){
+        warning("File: '", isolate(input$resultXML),"' cannot be read.")
+        return(NULL)
+      }
+      isolate(GetResultsFromXML(input$resultXML))
+    }
   })
   
   ### Assign to reactive values:
@@ -27,10 +36,15 @@ shinyServer( function(input, output, session) {
   observe({ rv$result <- loadedResult2() })
   
   ### Display analysis overview
-  output$overviewAnalysis <- renderTable({
+  output$overviewAnalysis <- renderText({
+
+    if( is.null(rv$result)) {
+      return("Warning: A dataset must be loaded to access analysis overview")
+    }
+       
     params <- rv$result@used.parameters
       
-    data.frame(
+    tableAsHTML(data.frame(
       "Property"=c(
         "x! tandem algorithm version",
         "Search start time",
@@ -58,16 +72,23 @@ shinyServer( function(input, output, session) {
         params$"residue, modification mass",
         params$"residue, potential modification mass"
         )
-     )
+     ))
    })
 
   ### Display protein overview
-  output$overviewProteins <- renderTable({
-    rv$result@proteins[,c(1,2,3,6,7),with=FALSE]
+  output$overviewProteins <- renderText({
+   if(is.null(rv$result)){
+     return("Warning: A dataset must be loaded to see the identified proteins")
+    }
+    tableAsHTML(rv$result@proteins[,c(1,2,3,6,7),with=FALSE])
   })
+
   ### Display protein overview
-  output$overviewPeptides <- renderTable({
-    rv$result@peptides[,c(1,2,3,4,5,9,10,11,12,14,17), with=FALSE]
+  output$overviewPeptides <- renderText({
+     if(is.null(rv$result)){
+       return("Warning:A dataset must be loaded to see the identified peptides")
+    }
+    tableAsHTML(rv$result@peptides[,c(1,2,3,4,5,9,10,11,12,14,17), with=FALSE])
   })
 
   #########
@@ -76,6 +97,9 @@ shinyServer( function(input, output, session) {
 
   ## protein selection dynamic ui:
   output$protSelection <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to obtain a choice of identified proteins")
+    }
     prots <- subset(rv$result@proteins, expect.value < input$maxExpectProt &
                     num.peptides > input$minPepNum & like(label, input$protDescFilter))
     prots <- prots[,label]
@@ -83,17 +107,34 @@ shinyServer( function(input, output, session) {
                        choices=prots, multiple=TRUE)
   })
 
-  output$tableSelectedProt <- renderTable({
-    rv$result@proteins[label==input$protSelected[[1]],
-                            c(1,2,3,6,7), with=FALSE]
+  output$tableSelectedProt <- renderText({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to obtain a choice of identified proteins")
+    }
+    tableAsHTML(rv$result@proteins[label==input$protSelected[[1]],
+                                   c(1,2,3,6,7), with=FALSE])
   })
 
-  output$pepFromSelectProt <- renderTable({
+  ### Peptides from selected protein
+  output$pepFromSelectProt <- renderText({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to see peptides")
+    }
+    if(length(input$protSelected)<1){
+      return("Warning: You must select a protein to see the associated peptides.")
+    }
     selectProt <- rv$result@proteins[label==input$protSelected[[1]], uid]
-    rv$result@peptides[prot.uid==selectProt, c(2,3,4,5,6,7,9,10,11,12,14,15,16,17), with=FALSE]
+    tableAsHTML(rv$result@peptides[prot.uid==selectProt, c(2,3,4,5,6,7,9,10,11,12,14,15,16,17), with=FALSE])
   })
 
+  ### Protein coverage
   output$protCoverage <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning:A dataset must be loaded to see protein coverage.")
+    }
+    if(length(input$protSelected)<1){
+      return("Warning: You must select a protein to see the protein coverage.")
+    }
     selectedProt <- rv$result@proteins[label==input$protSelected[[1]],]
     selectedPep <- as.data.frame(rv$result@peptides[ prot.uid==selectedProt[1,uid], ])
     selectedMod <- as.data.frame(rv$result@ptm[pep.id %in% selectedPep$pep.id,])
