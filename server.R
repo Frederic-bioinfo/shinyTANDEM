@@ -3,22 +3,32 @@ source("./pagedServer.R", local=TRUE)
 
 shinyServer( function(input, output, session) {
 
+  rv <- reactiveValues()
+
+  #######
+  ## Load results page
+  #######
+  
   ### Load result from Rdata
-  loadedResult <- reactive({
+  loadedResult1 <- reactive({
     input$loadFromRda
-    isolate(load(input$resulRda))
+    isolate(load(input$resultRda))
     isolate(return(input$Robj))
   })
 
   ### Load result from xml
-  loadedResult <- reactive({
-    isolate(input$loadFromXML)
+  loadedResult2 <- reactive({
+    input$loadFromXML
     isolate(GetResultsFromXML(input$resultXML))
   })
-
+  
+  ### Assign to reactive values:
+  observe({ rv$result <- loadedResult1() })
+  observe({ rv$result <- loadedResult2() })
+  
   ### Display analysis overview
   output$overviewAnalysis <- renderTable({
-    params <- loadedResult()@used.parameters
+    params <- rv$result@used.parameters
       
     data.frame(
       "Property"=c(
@@ -35,16 +45,16 @@ shinyServer( function(input, output, session) {
         "Residue potential modifications"
         ),
       "Value"=c(
-        loadedResult()@xtandem.version,
-        loadedResult()@start.time,
+        rv$result@xtandem.version,
+        rv$result@start.time,
         params$"spectrum, path",
         params$"protein, taxon",
-        loadedResult()@sequence.source.paths,
+        rv$result@sequence.source.paths,
         params$'protein, cleavage site',
-        length(loadedResult()@proteins[,uid]),
-        length(loadedResult()@peptides[,pep.id]),
-        paste(loadedResult()@total.spectra.assigned,
-              loadedResult()@nb.input.spectra, sep="/"),
+        length(rv$result@proteins[,uid]),
+        length(rv$result@peptides[,pep.id]),
+        paste(rv$result@total.spectra.assigned,
+              rv$result@nb.input.spectra, sep="/"),
         params$"residue, modification mass",
         params$"residue, potential modification mass"
         )
@@ -53,11 +63,11 @@ shinyServer( function(input, output, session) {
 
   ### Display protein overview
   output$overviewProteins <- renderTable({
-    loadedResult()@proteins[,c(1,2,3,6,7),with=FALSE]
+    rv$result@proteins[,c(1,2,3,6,7),with=FALSE]
   })
   ### Display protein overview
   output$overviewPeptides <- renderTable({
-    loadedResult()@peptides[,c(1,2,3,4,5,9,10,11,12,14,17), with=FALSE]
+    rv$result@peptides[,c(1,2,3,4,5,9,10,11,12,14,17), with=FALSE]
   })
 
   #########
@@ -66,7 +76,7 @@ shinyServer( function(input, output, session) {
 
   ## protein selection dynamic ui:
   output$protSelection <- renderUI({
-    prots <- subset(loadedResult()@proteins, expect.value < input$maxExpectProt &
+    prots <- subset(rv$result@proteins, expect.value < input$maxExpectProt &
                     num.peptides > input$minPepNum & like(label, input$protDescFilter))
     prots <- prots[,label]
     selectInput("protSelected", label="Choose a protein:",
@@ -74,19 +84,19 @@ shinyServer( function(input, output, session) {
   })
 
   output$tableSelectedProt <- renderTable({
-    loadedResult()@proteins[label==input$protSelected[[1]],
+    rv$result@proteins[label==input$protSelected[[1]],
                             c(1,2,3,6,7), with=FALSE]
   })
 
   output$pepFromSelectProt <- renderTable({
-    selectProt <- loadedResult()@proteins[label==input$protSelected[[1]], uid]
-    loadedResult()@peptides[prot.uid==selectProt, c(2,3,4,5,6,7,9,10,11,12,14,15,16,17), with=FALSE]
+    selectProt <- rv$result@proteins[label==input$protSelected[[1]], uid]
+    rv$result@peptides[prot.uid==selectProt, c(2,3,4,5,6,7,9,10,11,12,14,15,16,17), with=FALSE]
   })
 
   output$protCoverage <- renderUI({
-    selectedProt <- loadedResult()@proteins[label==input$protSelected[[1]],]
-    selectedPep <- as.data.frame(loadedResult()@peptides[ prot.uid==selectedProt[1,uid], ])
-    selectedMod <- as.data.frame(loadedResult()@ptm[pep.id %in% selectedPep$pep.id,])
+    selectedProt <- rv$result@proteins[label==input$protSelected[[1]],]
+    selectedPep <- as.data.frame(rv$result@peptides[ prot.uid==selectedProt[1,uid], ])
+    selectedMod <- as.data.frame(rv$result@ptm[pep.id %in% selectedPep$pep.id,])
 
     sequence <- selectedProt[1,sequence]
     sequence <- gsub("\\s","",sequence)
