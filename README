@@ -1,0 +1,9 @@
+README
+
+shinyTANDEM provides a GUI for visualizing rTANDEM or x!tandem results. 
+
+It should be noted that the results are fully loaded into memory and are 
+constantly mined for data. That makes shinyTANDEM appropriate only for
+datasets or moderate size. Even for datasets of appropriate
+size, loading the dataset will likely take some time, and the browser 
+might remain less responsive than it would be while simply browsing the web.

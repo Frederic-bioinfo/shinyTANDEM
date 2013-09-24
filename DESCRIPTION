@@ -1,0 +1,16 @@
+Package: shinyTANDEM
+Type: Package
+Title: Provides a GUI for rTANDEM
+Version: 0.99.0
+Date: 2013-09-24
+SystemRequirements: rTANDEM uses expat and pthread libraries. See the
+        README file for details.
+Author@R: c(person("Frederic", "Fournier",
+        email="frederic.fournier@crchuq.ulaval.ca"))
+Author: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
+Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
+Description: This package provides a GUI interface for rTANDEM. Result objects from rTANDEM or xml result files can be loaded in shinyTANDEM. Once a result is loaded, the GUI offers tabs to overview the results or to focus on specific proteins and vizualise their coverage and assigned peptides. 
+biocViews: MassSpectrometry, Proteomics
+License: GPL-3
+Imports: shiny
+Depends: rTANDEM
