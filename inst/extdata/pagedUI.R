@@ -8,103 +8,117 @@ home.ui <- function() {
 }
 
 analysis.ui <- function() {
-  h3("This page will hold the welcome page for the analysis section")
+  div(
+    h2("... Work in progress ..."),
+    p("This page will hold the welcome page for the analysis section. Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+    )
 }
 
 param.ui <- function() {
   div(
-    h3("Create Parameter Objects",
-       style="text-align: center;", rel="tooltip",
-       title="Test in tooltip"
-    ),
-    div(class="row-fluid",
-      div(class="span3",
-        div(class="well",  
-          radioButtons("typeOfParam",
-                       "Type of parameter object:",
-                       choices=c("Analysis centered", "Instrument defaults",
-                         "Full", "Taxonomy"),  
-                       selected=("Analysis centered")
-                       )
-        ) ## /well (first column)
-      ), ## /span3 (first column)
+    h2("... Work in progress ..."),
+    p("This page will hold the welcome page for the analysis section.
+Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+  )
+  ## div(
+  ##   h3("Create Parameter Objects",
+  ##      style="text-align: center;", rel="tooltip",
+  ##      title="Test in tooltip"
+  ##   ),
+  ##   div(class="row-fluid",
+  ##     div(class="span3",
+  ##       div(class="well",  
+  ##         radioButtons("typeOfParam",
+  ##                      "Type of parameter object:",
+  ##                      choices=c("Analysis centered", "Instrument defaults",
+  ##                        "Full", "Taxonomy"),  
+  ##                      selected=("Analysis centered")
+  ##                      )
+  ##       ) ## /well (first column)
+  ##     ), ## /span3 (first column)
 
-      div(class="span9",
-        div(class="well",
+  ##     div(class="span9",
+  ##       div(class="well",
 
-          ### Analysis centered parameter object  
-          conditionalPanel("input.typeOfParam == 'Analysis centered'",
-            h4("Build an analysis centered parameter object", style="text-align: center;"),
-            div(rel="tooltip",
-                title="Input a coma-separated list of the spectra files (with their full path).",
-                textInput(inputId="spectrum, path",
-                          label="Spectra file(s):")
-            ),
-            div(rel="tooltip",
-                title="Input the path of the taxonomy.xml file",
-                textInput(inputId="list path, taxonomy information",
-                          label="Taxonomy file:")
-            ),
-            div(rel="tooltip",
-                title="Input the taxon to be used (as it is named in the taxonomy file).",
-                textInput(inputId="protein, taxon",
-                          label="Taxon:")
-            ),
-            div(rel="tooltip",
-                title="Input the path to the output folder.",
-                textInput(inputId="output, path",
-                          label="Path to output folder:")
-            ),
-            div(rel="tooltip",
-                title="Input the path to the default parameter object.",
-                textInput(inputId="list path, default parameters",
-                          label="Path to the default parameter object:")
-            ),
-            div(rel="tooltip",
-                title="Give a name to the R object or the .xml file to be created.",
-                textInput(inputId="paramName",
-                          label="Name of the parameter:")
-            )         
+  ##         ### Analysis centered parameter object  
+  ##         conditionalPanel("input.typeOfParam == 'Analysis centered'",
+  ##           h4("Build an analysis centered parameter object", style="text-align: center;"),
+  ##           div(rel="tooltip",
+  ##               title="Input a coma-separated list of the spectra files (with their full path).",
+  ##               textInput(inputId="spectrum, path",
+  ##                         label="Spectra file(s):")
+  ##           ),
+  ##           div(rel="tooltip",
+  ##               title="Input the path of the taxonomy.xml file",
+  ##               textInput(inputId="list path, taxonomy information",
+  ##                         label="Taxonomy file:")
+  ##           ),
+  ##           div(rel="tooltip",
+  ##               title="Input the taxon to be used (as it is named in the taxonomy file).",
+  ##               textInput(inputId="protein, taxon",
+  ##                         label="Taxon:")
+  ##           ),
+  ##           div(rel="tooltip",
+  ##               title="Input the path to the output folder.",
+  ##               textInput(inputId="output, path",
+  ##                         label="Path to output folder:")
+  ##           ),
+  ##           div(rel="tooltip",
+  ##               title="Input the path to the default parameter object.",
+  ##               textInput(inputId="list path, default parameters",
+  ##                         label="Path to the default parameter object:")
+  ##           ),
+  ##           div(rel="tooltip",
+  ##               title="Give a name to the R object or the .xml file to be created.",
+  ##               textInput(inputId="paramName",
+  ##                         label="Name of the parameter:")
+  ##           )         
                
                  
-          ),##/conditionalPan (analysis centered)    
+  ##         ),##/conditionalPan (analysis centered)    
 
-          ### Instrument centered parameter object.
-          conditionalPanel("input.typeOfParam == 'Instrument defaults'",
-            h4("Instrument defaults parameter object", style="text-align: center;")
-          ),    
+  ##         ### Instrument centered parameter object.
+  ##         conditionalPanel("input.typeOfParam == 'Instrument defaults'",
+  ##           h4("Instrument defaults parameter object", style="text-align: center;")
+  ##         ),    
 
-          ### Full parameter object
-          conditionalPanel("input.typeOfParam == 'Full'",
-            h4("Full parameter objects", style="text-align: center;")
-          ),
+  ##         ### Full parameter object
+  ##         conditionalPanel("input.typeOfParam == 'Full'",
+  ##           h4("Full parameter objects", style="text-align: center;")
+  ##         ),
 
-          ### Taxonomy
-          conditionalPanel("input.typeOfParam == 'Taxonomy'",
-            h4("Taxonomy", style="text-align: center;")
-          )
+  ##         ### Taxonomy
+  ##         conditionalPanel("input.typeOfParam == 'Taxonomy'",
+  ##           h4("Taxonomy", style="text-align: center;")
+  ##         )
             
-        ), ### /well (second column)
-        div(class="well",
-            textOutput("paramSummary"),
-            textOutput("paramSummary2")
-            ) ##/well (output)
-      ) ### /span9
-    ), ### /row-fluid
+  ##       ), ### /well (second column)
+  ##       div(class="well",
+  ##           textOutput("paramSummary"),
+  ##           textOutput("paramSummary2")
+  ##           ) ##/well (output)
+  ##     ) ### /span9
+  ##   ), ### /row-fluid
     
-    div(style="text-align: center;",div(style="display: inline-block;",
-      actionButton("createRParam", "Create R parameter object"),
-      actionButton("createXMLParam", "Save as an xml object")
-    ))
-  ) ## /div (main)
+  ##   div(style="text-align: center;",div(style="display: inline-block;",
+  ##     actionButton("createRParam", "Create R parameter object"),
+  ##     actionButton("createXMLParam", "Save as an xml object")
+  ##   ))
+  ## ) ## /div (main)
 }
 
 launch.ui <- function() {
-  h3("This page will hold the launch functions for running analysis")
- }
+  div(
+    h2("... Work in progress ..."),
+    p("This page will allow you to launch rTANDEM analysis. Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+    )
+}
 
 convert.ui <- function() {
-  h3("This page will hold the various conversion functions...")
+  div(
+    h2("... Work in progress ..."),
+    p("This page will allow you to convert R object to xml file and vice versa. Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+    )
 }
 
 load.ui <- function(){
@@ -172,7 +186,10 @@ overview.ui <- function() {
 }
 
 stats.ui <- function() {
-  h3("This page will provide statistics about the loaded results.")
+  div(
+    h2("... Work in progress ..."),
+    p("This page will provide statistics about the identification scores of the loaded results. Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+  )
 }
 
 prots.ui <- function() {
@@ -199,15 +216,15 @@ prots.ui <- function() {
     div(class="well",
       h3("Selected protein"),
       htmlOutput("tableSelectedProt"),
-      h3("Peptides from selected protein"),
-      div(style="max-height: 350px; overflow: auto;",
-          htmlOutput("pepFromSelectProt")
-      ),
       h3("Protein coverage"),
       div(style="max-height: 350px; overflow: auto;",
         htmlOutput("protCoverage")
+      ),
+      h3("Peptides from selected protein"),
+      div(style="max-height: 350px; overflow: auto;",
+          htmlOutput("pepFromSelectProt")
       )
-
+        
     )#/well Selected Prot
   )#/div prots.ui
 }
@@ -221,12 +238,24 @@ external.ui <- function() {
 }
 
 biomart.ui <- function() {
-  sidebarPanel(
-    h4("Use biomaRt for cross references"),
-    textInput("idXref", label="ID cross-reference")
+  div(
+    h2("... Work in progress ..."),
+    h3("This page will allow you to use biomaRt for quick cross-references."),
+    h3("Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
   )
+
+  ## sidebarPanel(
+  ##   h4("Use biomaRt for cross references"),
+  ##   textInput("idXref", label="ID cross-reference")
+  ## )
 }
 
 gominer.ui <- function() {
-  h3("This page will provide a GO-information on selected proteins.")
+  div(
+    h2("... Work in progress ..."),
+    p("This page will allow you to get GO annotation on selected groups of proteins.
+Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+  )
+
 }
+
