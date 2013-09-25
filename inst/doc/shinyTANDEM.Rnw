@@ -1,0 +1,49 @@
+%\VignetteIndexEntry{shinyTANDEM user guide}
+%\VignetteKeywords{MassSpectrometry, Proteomics}
+%\VignettePackage{shinyTANDEM}
+\documentclass[11pt]{article}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{color, pdfcolmk}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+
+\author{Frederic Fournier\footnote{frederic.fournier@crchuq.ulaval.ca}}
+
+\begin{document}
+\title{shinyTANDEM: A graphical user interface for rTANDEM}
+\maketitle
+
+
+
+\textnormal {\normalfont}
+
+
+\tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+
+\section{Licensing}
+
+This package is distributed under Gnu General Public License v3.
+
+\section{Introduction}
+
+shinyTANDEM is a graphical user interface for rTANDEM that is based on the shiny package and is displayed in a web browser. It is primarily designed to visualize small to medium sized rTANDEM result objects, but it can also parse results that are in an xml file. The package also provides an interface for creating parameter objects, launching searches, or performing conversions between R objects and xml files.
+
+\section{Words of caution}
+
+The datasets visualized with shinyTANDEM are fully loaded into memory and are constantly mined for data. Given this, the graphical interface is best suited for the visualization of small to medium sized datasets. Even with datasets of acceptable size, it should be expected that your browser will be less responsive than it would be while browsing static pages on the web. 
+
+shinyTANDEM can load dataset from Rda files or from xml files, but the user should take into consideration that loading a dataset from a xml file is equivalent to first parsing the xml into an R object. Such parsing will go reasonably quickly for small files (up to a couple of MB), but will take considerable time for medium files (up to a couple hundres of MB). It is not advised to try to load a dataset directly from an xml file if the file is more than a couple hundreds MB in size. In such a case, use rTANDEM function GetResultFromXML parse the xml file and to create an R object, then load this object in the graphical interface.
+
+\section{shinyTANDEM typical usage}
+
+The graphical interface is launched with the function \texttt{shinyTANDEM()}, optional parameters can be passed to the shiny function. Specifically, the \texttt{port} parameter allows you to specify a given port. Launching the interface will open your default browser to shinyTANDEM homepage. From there, the first step is usually to load a dataset. The package comes with an example dataset. To load it, enter \texttt{result.Rda} and \texttt{result} in the R-data section, or \texttt{result.xml} in the xml section. 
+
+\end{document}

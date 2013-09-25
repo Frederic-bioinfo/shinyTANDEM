@@ -9,8 +9,7 @@ Author@R: c(person("Frederic", "Fournier",
         email="frederic.fournier@crchuq.ulaval.ca"))
 Author: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
 Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
-Description: This package provides a GUI interface for rTANDEM. Result objects from rTANDEM or xml result files can be loaded in shinyTANDEM. Once a result is loaded, the GUI offers tabs to overview the results or to focus on specific proteins and vizualise their coverage and assigned peptides. 
+Description: This package provides a GUI interface for rTANDEM. The GUI is primarily designed to visualize rTANDEM result object or result xml files. But it also provides an interface for creating parameter objects, launching searches or performing conversions between R objects and xml files.
 biocViews: MassSpectrometry, Proteomics
 License: GPL-3
-Imports: shiny
-Depends: rTANDEM
+Depends: rTANDEM, shiny, biomaRt
