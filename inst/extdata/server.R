@@ -1,12 +1,9 @@
-# This page contains the shiny server-side functions (return outputs)
-source("./pagedServer.R", local=TRUE)
-
 shinyServer( function(input, output, session) {
 
   rv <- reactiveValues()
 
   #######
-  ## Load results page
+  ## Load results section
   #######
   
   ### Load result from Rdata
@@ -15,8 +12,8 @@ shinyServer( function(input, output, session) {
       if( file.access( isolate(input$resultRda), mode=4) == -1 ){
         warning("File: '", isolate(input$resultRda),"' cannot be read.")
       }
-      isolate(load(input$resultRda))
-      isolate(return(input$Robj))
+      isolate(load(file=input$resultRda))
+      isolate(return(get(input$resultRobj)))
   }
   })
   
@@ -34,8 +31,10 @@ shinyServer( function(input, output, session) {
   ### Assign to reactive values:
   observe({ rv$result <- loadedResult1() })
   observe({ rv$result <- loadedResult2() })
-  
-  ### Display analysis overview
+
+  #######
+  ### Result overview section
+  #######
   output$overviewAnalysis <- renderText({
 
     if( is.null(rv$result)) {
@@ -92,7 +91,7 @@ shinyServer( function(input, output, session) {
   })
 
   #########
-  ## Protein page
+  ## Proteins view section
   #########
 
   ## protein selection dynamic ui:

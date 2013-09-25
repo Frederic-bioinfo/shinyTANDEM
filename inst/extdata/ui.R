@@ -30,9 +30,3 @@ shinyUI(
       conditionalPanel("input.section == 'gominer'", gominer.ui() )
   ) # /pageWithSidebar
 ) # /shinyUI 
- 
- 
- 
- 
-  
- 
