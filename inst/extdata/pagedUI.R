@@ -230,7 +230,11 @@ prots.ui <- function() {
 }
 
 peps.ui <- function() {
-  h3("This page will allow to get a closer look at specific peptide IDs.")
+  div(
+    h2("... Work in progress ..."),
+    p("This page will allow you to get a closer look at specific peptides IDs.
+Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+  )
 }
 
 external.ui <- function() {
@@ -240,8 +244,8 @@ external.ui <- function() {
 biomart.ui <- function() {
   div(
     h2("... Work in progress ..."),
-    h3("This page will allow you to use biomaRt for quick cross-references."),
-    h3("Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+    p("This page will allow you to use biomaRt for quick cross-references.
+Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
   )
 
   ## sidebarPanel(
@@ -256,6 +260,4 @@ gominer.ui <- function() {
     p("This page will allow you to get GO annotation on selected groups of proteins.
 Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
   )
-
 }
-
