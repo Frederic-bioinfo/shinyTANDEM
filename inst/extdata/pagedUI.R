@@ -158,7 +158,9 @@ load.ui <- function(){
           ))
         )#/well
       )#/span4
-    )#/row
+    ),#/row
+    uiOutput("loadStateIndicator"),
+    uiOutput("loadedDataset")
   )#/main div
 }
 

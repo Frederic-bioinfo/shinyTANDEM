@@ -9,28 +9,67 @@ shinyServer( function(input, output, session) {
   ### Load result from Rdata
   loadedResult1 <- reactive({
     if( input$loadFromRda > 0) {
+      ### Catch error if file cannot be read.
       if( file.access( isolate(input$resultRda), mode=4) == -1 ){
-        warning("File: '", isolate(input$resultRda),"' cannot be read.")
+        rv$loadStateIndicator <-
+          paste("File: \"", isolate(input$resultRda),"\" cannot be read.")
+        return(NULL)
       }
+
+      ## TO-DO: put this in a try-catch to recuperate the error messages yielded if the format is not recognized.
       isolate(load(file=input$resultRda))
-      isolate(return(get(input$resultRobj)))
-  }
+
+      ### TO-DO test for the existence of the named object.
+      ### TO-DO test for the class of the named object. (must be rTResult)            
+
+      temp<-isolate(get(input$resultRobj))
+      rv$loadStateIndicator <- NULL
+      return(temp)
+    }
   })
   
   ### Load result from xml
   loadedResult2 <- reactive({
     if( input$loadFromXML > 0) {
+      # Test if file can be read.
       if( file.access(isolate(input$resultXML), mode=4) == -1){
-        warning("File: '", isolate(input$resultXML),"' cannot be read.")
+        rv$loadStateIndicator <-
+          paste("File: \"", isolate(input$resultXML),"\" cannot be read.")
         return(NULL)
       }
-      isolate(GetResultsFromXML(input$resultXML))
+
+      ### To-do: put this in a tryCatch structure
+      temp<- isolate(GetResultsFromXML(input$resultXML))
+      rv$loadStateIndicator <- NULL
+      return(temp)
     }
   })
   
   ### Assign to reactive values:
   observe({ rv$result <- loadedResult1() })
   observe({ rv$result <- loadedResult2() })
+
+  ### Load state indicators:
+  output$loadStateIndicator <- renderUI({
+    if (is.null(rv$loadStateIndicator)){
+      return(invisible(NULL))
+    }
+    return(
+      div(class="alert alert-info", rv$loadStateIndicator)
+    )
+  })
+  
+  ### Loaded dataset indicator
+  output$loadedDataset <- renderUI({
+    if( is.null(rv$result) ){
+      return(           
+        div(class="alert alert-danger", style="text-align: center;",
+            "No dataset is loaded!")
+      )
+    }
+    div(class="alert alert-success", style="text-align: center;",
+        "A dataset was sucessfully loaded!")
+  })
 
   #######
   ### Result overview section
