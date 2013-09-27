@@ -199,11 +199,11 @@ prots.ui <- function() {
       div(class="row-fluid",
         div(class="span4",
           numericInput(inputId="maxExpectProt",
-                    label="Max. expectation value:", value=100)
+                    label="Max. expectation value:", value=0.05)
         ),
         div(class="span4",
           numericInput(inputId="minPepNum",
-                    label="Minimum # of peptides:", value=1, min=1, max=1000, step=1)
+                    label="Minimum # of peptides:", value=2, min=1, max=1000, step=1)
         ),
         div(class="span4",
           textInput(inputId="protDescFilter",
