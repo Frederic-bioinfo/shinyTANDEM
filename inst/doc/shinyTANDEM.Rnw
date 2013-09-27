@@ -12,7 +12,7 @@
 \newcommand{\scscst}{\scriptscriptstyle}
 \newcommand{\scst}{\scriptstyle}
 
-\author{Frederic Fournier\footnote{frederic.fournier@crchuq.ulaval.ca}}
+\author{Frederic Fournier\footnote{frederic.fournier@crchuq.ulaval.ca}, Arnaud Droit\footnote{arnaud.droit@crchuq.ulaval.ca}}
 
 \begin{document}
 \title{shinyTANDEM: A graphical user interface for rTANDEM}

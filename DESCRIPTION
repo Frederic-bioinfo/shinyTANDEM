@@ -4,8 +4,9 @@ Title: Provides a GUI for rTANDEM
 Version: 0.99.0
 Date: 2013-09-24
 Author@R: c(person("Frederic", "Fournier",
-        email="frederic.fournier@crchuq.ulaval.ca"))
-Author: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
+        email="frederic.fournier@crchuq.ulaval.ca"), person("Arnaud", 
+	"Droit", email="arnaud.droit@crchuq.ulaval.ca"))
+Author: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>, Arnaud Droit <arnaud.droit@crchuq.ulaval.ca>
 Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
 Description: This package provides a GUI interface for rTANDEM. The GUI is primarily designed to visualize rTANDEM result object or result xml files. But it also provides an interface for creating parameter objects, launching searches or performing conversions between R objects and xml files.
 biocViews: MassSpectrometry, Proteomics
