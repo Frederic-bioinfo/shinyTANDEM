@@ -5,9 +5,9 @@ shinyServer( function(input, output, session) {
   #######
   ## Load results section
   #######
-  
+
   ### Load result from Rdata
-  loadedResult1 <- reactive({
+  loadedResultRda <- reactive({
     if( input$loadFromRda > 0) {
       ### Catch error if file cannot be read.
       if( file.access( isolate(input$resultRda), mode=4) == -1 ){
@@ -24,12 +24,13 @@ shinyServer( function(input, output, session) {
 
       temp<-isolate(get(input$resultRobj))
       rv$loadStateIndicator <- NULL
+      rv$loadedDataset<- "Dataset successfully loaded from Rda file."
       return(temp)
     }
   })
   
   ### Load result from xml
-  loadedResult2 <- reactive({
+  loadedResultXML <- reactive({
     if( input$loadFromXML > 0) {
       # Test if file can be read.
       if( file.access(isolate(input$resultXML), mode=4) == -1){
@@ -41,13 +42,26 @@ shinyServer( function(input, output, session) {
       ### To-do: put this in a tryCatch structure
       temp<- isolate(GetResultsFromXML(input$resultXML))
       rv$loadStateIndicator <- NULL
+      rv$loadedDataset<-"Dataset successfully loaded from xml file."
       return(temp)
     }
   })
-  
+
+  ### Load result from R session:
+  loadedResultSession <- reactive({
+    filename <- tempfile("sessionDataset.Rds")
+    filename <- gsub("sessionDataset.Rds.*", "sessionDataset.Rds", filename)
+    if ( file.access(filename, mode=0) == 0 ) {
+      tmp <- readRDS(filename)
+      rv$loadedDataset <-"The dataset was successfully loaded while starting the shiny server"
+      return(tmp)
+    }
+  })
+     
   ### Assign to reactive values:
-  observe({ rv$result <- loadedResult1() })
-  observe({ rv$result <- loadedResult2() })
+  observe({ rv$result <- loadedResultRda() })
+  observe({ rv$result <- loadedResultXML() })
+  observe({ rv$result <- loadedResultSession() })
 
   ### Load state indicators:
   output$loadStateIndicator <- renderUI({
@@ -66,9 +80,13 @@ shinyServer( function(input, output, session) {
         div(class="alert alert-danger", style="text-align: center;",
             "No dataset is loaded!")
       )
+    } else {
+      return(
+        div(class="alert alert-success", style="text-align: center;",
+            rv$loadedDataset
+        )
+      )
     }
-    div(class="alert alert-success", style="text-align: center;",
-        "A dataset was sucessfully loaded!")
   })
 
   #######

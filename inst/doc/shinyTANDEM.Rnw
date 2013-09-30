@@ -44,6 +44,6 @@ shinyTANDEM can load dataset from Rda files or from xml files, but the user shou
 
 \section{shinyTANDEM typical usage}
 
-The graphical interface is launched with the function \texttt{shinyTANDEM()}, optional parameters can be passed to the shiny function. Specifically, the \texttt{port} parameter allows you to specify a given port. Launching the interface will open your default browser to shinyTANDEM homepage. From there, the first step is usually to load a dataset. The package comes with an example dataset. To load it, enter \texttt{result.Rda} and \texttt{result} in the R-data section, or \texttt{result.xml} in the xml section. 
+The graphical interface is launched with the function \texttt{shinyTANDEM()}. If an rTANDEM dataset is loaded in the session, it can be passed as a parameter to the function. Other optional parameters can be passed to the shiny runApp function. Specifically, the \texttt{port} parameter allows you to specify a given port. Launching the interface will open your default browser to shinyTANDEM 'Load result' tab. From there, if no dataset was passed to the function call, the first step will be to load a dataset. The package comes with an example dataset. It can be loaded through the Rda file chanel (use Rda file='result.rda' and object='result) or through the xml file chanel (use xml file='result.xml').
 
 \end{document}
