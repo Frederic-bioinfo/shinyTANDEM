@@ -1,0 +1,16 @@
+.shiny-progress {
+  position: absolute;
+  width: 100%;
+  top: 40px;
+ }
+
+.shiny-progress .progress-message {
+  font-weight: bold;
+}
+
+.shiny-progress .progress {
+  margin-bottom: 0;
+}
+.shiny-progress .bar {
+  transition-duration: 250ms;
+}

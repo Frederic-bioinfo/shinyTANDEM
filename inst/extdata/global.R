@@ -28,22 +28,76 @@ tableAsHTML <- function(data) {
 
 
 
-## Original function suggested by Joe Cheng.
-## tableAsHTML <- function(data) {
-##     require('xtable')
-##     classNames <- 'data table table-bordered table-condensed'
+### Code for progress from shiny-incubator (2013-10-04)
 
-##     if (is.null(data) || identical(data, data.frame()))
-##       return("")
-    
-##     return(paste(
-##       capture.output(
-##         print(xtable(data, ...), 
-##               type='html', 
-##               html.table.attributes=paste('class="',
-##                                           htmlEscape(classNames, TRUE),
-##                                           '"',
-##                                           sep=''), ...)),
-##       collapse="\n"))
-##   }
+#' Initialize progress
+#' Call this function in your \code{shinyUI} definition if you intend
+#' to use progress in \code{server.R}.
+progressInit <- function() {
+#  addResourcePath('progress', system.file('progress',
+#                                          package='shinyIncubator'))
+  tagList(
+    singleton(
+      tags$head(
+        tags$script(src='js/progress.js'),
+        tags$link(rel='stylesheet', type='text/css',
+                  href='css/progress.css')
+      )
+    )
+  )
+}
+
+# Progress calss
+Progress <- setRefClass(
+  'Progress',
+  fields = list(
+    .session = 'ANY',
+    .id = 'character',
+    .min = 'numeric',
+    .max = 'numeric',
+    .closed = 'logical'
+  ),
+  methods = list(
+    initialize = function(session, min = 0, max = 1) {
+      .closed <<- FALSE
+      .session <<- session
+      .id <<- paste(as.character(as.raw(runif(8, min=0, max=255))), collapse='')
+      .min <<- min
+      .max <<- max
+      
+      .session$sendCustomMessage('shiny-progress-open', list(id = .id))
+    },
+    set = function(message = NULL, detail = NULL, value = NULL) {
+      if (.closed) {
+        # TODO: Warn?
+        return()
+      }
+
+      data <- list(id = .id)
+      if (!missing(message))
+        data$message <- message
+      if (!missing(detail))
+        data$detail <- detail
+      if (!missing(value)) {
+        if (is.null(value) || is.na(value))
+          data$value <- NULL
+        else {
+          data$value <- min(1, max(0, (value - .min) / (.max - .min)))
+        }
+      }
+
+      .session$sendCustomMessage('shiny-progress-update', data)
+    },
+    close = function() {
+      if (.closed) {
+        # TODO: Warn?
+        return()
+      }
+
+      .session$sendCustomMessage('shiny-progress-close',
+                                 list(id = .id))
+    }
+  )
+)
+.currentProgress <- new.env()
 
