@@ -40,11 +40,13 @@ shinyTANDEM(dataset=NULL, port=8100,...)
   Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
 }
 \examples{
+\donttest{ 
 # The package contains a RDS file with a rTResult object. Load it into 
 # memory and pass it to the call to shinyTANDEM.
 # To exit the GUI, press your interupt command
 # (usually Ctrl+C or Esc) in the R window.
 
-\donttest{my.result <- readRDS(system.file("extdata/result.RDS", package="shinyTANDEM")}
-\donttest{if(interactive()){shinyTANDEM(dataset=my.result)}}
-
+my.result <- readRDS(system.file("extdata/result.RDS", package="shinyTANDEM"))
+if(interactive()){ shinyTANDEM(dataset=my.result) }
+}
+}
