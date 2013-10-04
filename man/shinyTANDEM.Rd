@@ -40,16 +40,11 @@ shinyTANDEM(dataset=NULL, port=8100,...)
   Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
 }
 \examples{
-# The package contains a Rda file with a rTResult object
-# simply named 'result'.
-# Let's load this object and pass it to shinyTANDEM GUI. To exit the
-# GUI, press your interupt command (usually Ctrl+C or Esc) in the R window.
+# The package contains a RDS file with a rTResult object. Load it into 
+# memory and pass it to the call to shinyTANDEM.
+# To exit the GUI, press your interupt command
+# (usually Ctrl+C or Esc) in the R window.
 
-\donttest{load(system.file("extdata/result.Rda", package="shinyTANDEM")}
-\donttest{if(interactive()){shinyTANDEM(dataset=result)}}
+\donttest{my.result <- readRDS(system.file("extdata/result.RDS", package="shinyTANDEM")}
+\donttest{if(interactive()){shinyTANDEM(dataset=my.result)}}
 
-# Once the GUI is launched, datasets can be loaded in the 'Load results' tab.
-# The example dataset that is packaged with shinyTANDEM can be loaded
-# through the xml chanel (use xml file='result.xml') or through the
-# Rda chanel (use rda file='result.Rda' and object='result').
-}
