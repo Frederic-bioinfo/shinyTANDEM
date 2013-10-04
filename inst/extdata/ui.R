@@ -4,7 +4,10 @@ require(rTANDEM)
 navSection <- function(inputId) {      # the navbar is "section", inputId="section"
   tagList(
     singleton(tags$head(tags$script(src = "js/navbar.js"))),
-    tags$script(src="js/tooltips.js"), 
+    tags$script(src="js/tooltips.js"),
+    tags$script(src="js/bootstrap-fileupload.min.js"),
+    tags$link(rel="stylesheet", type="text/css",
+              href="css/bootstrap-fileupload.min.css"),
     tags$html(includeHTML('www/navbar.html'))
   )
 }
@@ -13,6 +16,7 @@ source("./pagedUI.R", local=TRUE)
 
 shinyUI(
   basicPage(
+    progressInit(),     
     navSection("section"), ### navbar
       ## Refer all UI components to pagedUI.R with function calls.
       conditionalPanel("input.section == 'home'", home.ui() ),

@@ -1,3 +1,5 @@
+options(shiny.maxRequestSize=1024^3)
+
 shinyServer( function(input, output, session) {
 
   rv <- reactiveValues()
@@ -6,43 +8,76 @@ shinyServer( function(input, output, session) {
   ## Load results section
   #######
 
-  ### Load result from Rdata
-  loadedResultRda <- reactive({
-    if( input$loadFromRda > 0) {
+  ### Load result from RDS
+  loadedResultRDS <- reactive({
+    if( input$loadFromRDS > 0) {
+
+      rv$loadStateIndicator <- NULL
+
+      ### Test if file was uploaded:
+      if( ! "data.frame" %in% class(input$resultRDS) ) {
+      rv$loadStateIndicator <-
+        "You must upload a file before loading it into memory"
+      return(NULL)
+      }
+      
       ### Catch error if file cannot be read.
-      if( file.access( isolate(input$resultRda), mode=4) == -1 ){
+      if( file.access( isolate(input$resultRDS$datapath), mode=4) == -1 ){
         rv$loadStateIndicator <-
-          paste("File: \"", isolate(input$resultRda),"\" cannot be read.")
+          paste("File: \"", isolate(input$resultRDS$name),"\" cannot be read.")
         return(NULL)
       }
 
       ## TO-DO: put this in a try-catch to recuperate the error messages yielded if the format is not recognized.
-      isolate(load(file=input$resultRda))
 
-      ### TO-DO test for the existence of the named object.
-      ### TO-DO test for the class of the named object. (must be rTResult)            
+      progressRDS <- Progress$new(session, min=0, max=1)
+      on.exit(progressRDS$close())
+      progressRDS$set(message="Loading RDS file into memory.", value=NULL)
+      
+      temp <- isolate(readRDS(file=input$resultRDS$datapath))
 
-      temp<-isolate(get(input$resultRobj))
+      if(! "rTResult" %in% class(temp)) {
+        rv$loadStateIndicator <-
+          paste("\"",input$resultRDS$name,"\"","is not a result object.", sep="")
+        return(NULL)
+      }
+      
       rv$loadStateIndicator <- NULL
-      rv$loadedDataset<- "Dataset successfully loaded from Rda file."
+      rv$loadedDataset<- "Dataset successfully loaded from RDS file."
       return(temp)
     }
   })
   
   ### Load result from xml
   loadedResultXML <- reactive({
-    if( input$loadFromXML > 0) {
-      # Test if file can be read.
-      if( file.access(isolate(input$resultXML), mode=4) == -1){
+    if(  input$loadFromXML > 0) {
+      rv$loadStateIndicator <- NULL
+      
+      ### Test if file was uploaded:
+      if( ! "data.frame" %in% class(input$resultXML) ) {
+      rv$loadStateIndicator <-
+        "You must upload a file before parsing it into memory"
+      return(NULL)
+      }
+      
+      ### Test if file can be read.
+      if( file.access(isolate(input$resultXML$datapath), mode=4) == -1){
         rv$loadStateIndicator <-
-          paste("File: \"", isolate(input$resultXML),"\" cannot be read.")
+          paste("File: \"", isolate(input$resultXML$name),"\" cannot be read.")
         return(NULL)
       }
 
+      progressXML <- Progress$new(session, min=0, max=1)
+      on.exit(progressXML$close())
+
+      progressXML$set(message="Parsing XML and loading into memory. Please wait as this could take some time...", value=NULL)
+    
       ### To-do: put this in a tryCatch structure
-      temp<- isolate(GetResultsFromXML(input$resultXML))
+      temp<- isolate(GetResultsFromXML(input$resultXML$datapath))
       rv$loadStateIndicator <- NULL
       rv$loadedDataset<-"Dataset successfully loaded from xml file."
+
+      progressXML$close()
       return(temp)
     }
   })
@@ -59,7 +94,7 @@ shinyServer( function(input, output, session) {
   })
      
   ### Assign to reactive values:
-  observe({ rv$result <- loadedResultRda() })
+  observe({ rv$result <- loadedResultRDS() })
   observe({ rv$result <- loadedResultXML() })
   observe({ rv$result <- loadedResultSession() })
 

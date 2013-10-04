@@ -124,40 +124,67 @@ convert.ui <- function() {
 load.ui <- function(){
   div(
     div(class="well", style="text-align: center;",
-      h4("Select either an XML result file or an .Rda file and the name of the result object to load a search.")
+      h4("Select either an XML result file or an .RDS file and the name of the result object to load a search.")
     ),
     div(class="row-fluid",
-      div(class="span8",
+      div(class="span6",
         div(class="well",
-          h5("Load a search from a R object from a Rdata file.", style="text-align: center;"),
-          div(class="row-fluid",
-            div(class="span6",
-              textInput(inputId="resultRda",               
-                        label="Choose a Rdata file (.Rda):"
+          h5("Load a result object from a RDS file.", style="text-align: center;"),
+          #### jasny bootstrap file selector:
+          div(class="fileupload fileupload-new", 'data-provides'="fileupload",
+            div(class="input-append",
+              div(class="uneditable-input span5",
+                tag("i", list(class="icon-file fileupload-exists")),
+                span(class="fileupload-preview")
+              ),
+              span(class="btn btn-file",
+                span(class="fileupload-new", "Select file"),
+                span(class="fileupload-exists", "Change"),
+                tag("input", list(id="resultRDS", type="file"))
+                ),
+              tag("a", list(href="#", class="btn fileupload-exists",
+                   'data-dismiss'="fileupload", "Remove")),
+              ### shiny progress bar.
+              div(id="resultRDS_progress",
+                  class="progress progress-striped shiny-file-input-progress",
+                div(class="bar"), tags$label()
               )
-            ),
-            div(class="span6",
-              textInput(inputId="resultRobj",
-                        label="Choose the rTResult object:"
-              )
-            )  
-          ),#/row
+            )
+          ), 
           div(style="text-align: center;", div(style="display: inline-block;",
-            actionButton("loadFromRda", "Load result from Rdata")
+            actionButton("loadFromRDS", "Charge object into memory")
           ))
         )#/well 
-      ),#/span8
-      div(class="span4",
+      ),#/span6
+      div(class="span6",
         div(class="well",
           h5("Load a search from an XML result file.", style="text-align: center;"),  
-          textInput(inputId="resultXML",
-                    label="Choose an XML result file:"
-          ),
+          #### jasny bootstrap file selector:
+          div(class="fileupload fileupload-new", 'data-provides'="fileupload",
+            div(class="input-append",
+              div(class="uneditable-input span5",
+                tag("i", list(class="icon-file fileupload-exists")),
+                span(class="fileupload-preview")
+              ),
+              span(class="btn btn-file",
+                span(class="fileupload-new", "Select file"),
+                span(class="fileupload-exists", "Change"),
+                tag("input", list(id="resultXML", type="file"))
+                ),
+              tag("a", list(href="#", class="btn fileupload-exists",
+                   'data-dismiss'="fileupload", "Remove")),
+              ### shiny progress bar.
+              div(id="resultXML_progress",
+                  class="progress progress-striped shiny-file-input-progress",
+                div(class="bar"), tags$label()
+              )
+            )
+          ), 
           div(style="text-align: center;", div(style="display: inline-block;",
-             actionButton("loadFromXML", "Load result from XML")
+             actionButton("loadFromXML", "Parse XML file into memory")
           ))
         )#/well
-      )#/span4
+      )#/span6
     ),#/row
     uiOutput("loadStateIndicator"),
     uiOutput("loadedDataset")
