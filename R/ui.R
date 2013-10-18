@@ -3,18 +3,19 @@ require(rTANDEM)
 
 navSection <- function(inputId) {      # the navbar is "section", inputId="section"
   tagList(
-    singleton(tags$head(tags$script(src = "js/navbar.js"))),
-    tags$script(src="js/tooltips.js"),
-    tags$script(src="js/bootstrap-fileupload.min.js"),
+    singleton(tags$head(tags$script(src = "/www/js/navbar.js"))),
+    tags$script(src="/www/js/tooltips.js"),
+    tags$script(src="/www/js/bootstrap-fileupload.min.js"),
     tags$link(rel="stylesheet", type="text/css",
-              href="css/bootstrap-fileupload.min.css"),
-    tags$html(includeHTML('www/navbar.html'))
+              href="/www/css/bootstrap-fileupload.min.css"),
+    includeHTML(
+      system.file("extdata/www/navbar.html",
+                  package="shinyTANDEM")
+    )
   )
 }
 
-source("./pagedUI.R", local=TRUE)
-
-shinyUI(
+shinyUI <- function() {
   basicPage(
     progressInit(),     
     navSection("section"), ### navbar
@@ -32,5 +33,5 @@ shinyUI(
       conditionalPanel("input.section == 'external'", external.ui() ),
       conditionalPanel("input.section == 'biomart'", biomart.ui() ),
       conditionalPanel("input.section == 'gominer'", gominer.ui() )
-  ) # /pageWithSidebar
-) # /shinyUI 
+  ) # /basicPage
+} # /shinyUI 

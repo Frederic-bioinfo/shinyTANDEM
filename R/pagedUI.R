@@ -1,7 +1,7 @@
 home.ui <- function() {
   div(
       tags$div(style="position:absolute;padding:8% 0 0 0; margin:0 -20px;",
-      tags$img(src="images/rTANDEM_logo.png", style="width=100%;",
+      tags$img(src="www/images/rTANDEM_logo.png", style="width=100%;",
                alt="rTANDEM logo")
     )
   )

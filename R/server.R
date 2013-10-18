@@ -1,6 +1,4 @@
-options(shiny.maxRequestSize=1024^3)
-
-shinyServer( function(input, output, session) {
+shinyTandemServer <- function(input, output, session) {
 
   rv <- reactiveValues()
 
@@ -29,7 +27,6 @@ shinyServer( function(input, output, session) {
       }
 
       ## TO-DO: put this in a try-catch to recuperate the error messages yielded if the format is not recognized.
-
       progressRDS <- Progress$new(session, min=0, max=1)
       on.exit(progressRDS$close())
       progressRDS$set(message="Loading RDS file into memory.", value=NULL)
@@ -84,12 +81,10 @@ shinyServer( function(input, output, session) {
 
   ### Load result from R session:
   loadedResultSession <- reactive({
-    filename <- tempfile("sessionDataset.Rds")
-    filename <- gsub("sessionDataset.Rds.*", "sessionDataset.Rds", filename)
-    if ( file.access(filename, mode=0) == 0 ) {
-      tmp <- readRDS(filename)
+    warning(paste("Class dataset: ", class(dataset), sep=""))
+    if (! is.null(dataset)) {
       rv$loadedDataset <-"The dataset was successfully loaded while starting the shiny server"
-      return(tmp)
+      return(dataset)
     }
   })
      
@@ -292,5 +287,4 @@ shinyServer( function(input, output, session) {
       }
     }
   }) ## /output$mainSection
-}) ##/shinyServer
- 
+} ##/shinyServer
