@@ -81,7 +81,6 @@ shinyTandemServer <- function(input, output, session) {
 
   ### Load result from R session:
   loadedResultSession <- reactive({
-    warning(paste("Class dataset: ", class(dataset), sep=""))
     if (! is.null(dataset)) {
       rv$loadedDataset <-"The dataset was successfully loaded while starting the shiny server"
       return(dataset)
@@ -123,7 +122,6 @@ shinyTandemServer <- function(input, output, session) {
   ### Result overview section
   #######
   output$overviewAnalysis <- renderText({
-
     if( is.null(rv$result)) {
       return("Warning: A dataset must be loaded to access analysis overview")
     }
@@ -259,32 +257,85 @@ shinyTandemServer <- function(input, output, session) {
     sequence2 <- paste(seqVec, sep="")
     HTML(sequence2)
   })
+
+  ######
+  ## Stats section.
+  ######
   
-  output$mainSection <- renderUI({
-    if(!is.null(input$section)) {    
-      if(input$section == "home"){
-        home.main()
-      } else if (input$section == "params"){
-        #.main()
-      } else if (input$section == "convert"){
-        convert.main(input$cbId)
-      } else if (input$section == "load"){
-        load.main()
-      } else if (input$section == "overview"){
-        overview.main()
-      } else if (input$section == "stats"){
-        stats.main()
-      } else if (input$section == "prots"){
-        prots.main()
-      } else if (input$section == "peps"){
-        peps.main()
-      } else if (input$section == "external"){
-        external.main()
-      } else if (input$section == "biomart"){
-        biomart.main()
-      } else if (input$section == "gominer"){
-        gominer.main()
-      }
+  output$protExpect <- renderPlot({
+    if (is.null(rv$result)) { return(invisible(NULL)) }
+    
+    prot.e <- sort(-(rv$result@proteins$expect.value), decreasing=TRUE)
+    spm.e <- sort(-log10(rv$result@peptides$expect.value), decreasing=TRUE)
+
+    xaxis <- max(length(prot.e), length(spm.e))
+    yaxis <- max(max(prot.e), max(spm.e))
+    plot(
+      prot.e,
+      type="l", lwd=1.5,
+      xlim=c(0,xaxis),
+      ylim=c(0,yaxis),
+      xlab="Number of IDs",
+      ylab="-log10(expectation value)",
+      col="blue")
+    points(spm.e, col="red", type="l")
+    max.expect <- 0.01
+    if (! is.na(rv$result@used.parameters$`output, maximum valid expectation value`)){
+      max.expect <- as.numeric(rv$result@used.parameters$`output, maximum valid expectation value`)
     }
-  }) ## /output$mainSection
+    abline(col="green", h=-log10(max.expect))
+
+    legend("topright",
+      legend=c("Protein IDs", "Peptide-spectrum match", "Highest acceptable expectation value\n(as defined in search parameters)"),
+      fill=c("red", "blue", "green"), bty="n"
+    )
+  })
+  
+   output$chargeDisUI<- renderUI({
+    if (is.null(rv$result)) { return(invisible(NULL)) }
+    tabs <- list()
+    for(i in names(table(rv$result@peptides$spectrum.z))){
+      tabTitle <- paste("charge +", i, sep="")
+      plotId <- paste("charge", i, sep="")
+      tabs <- c(tabs,
+        list(
+          tabPanel(title=tabTitle,
+            plotOutput(outputId=plotId))
+        )
+      )
+     }
+     warning(tabs)
+     do.call(tabsetPanel,tabs)
+   })
+
+  output$charge1 <- renderPlot({
+    plotChargeDis(1)
+  })
+  output$charge2 <- renderPlot({
+    plotChargeDis(2)
+  })
+  output$charge3 <- renderPlot({
+    plotChargeDis(3)
+  })
+  output$charge4 <- renderPlot({
+    plotChargeDis(4)
+  })
+  output$charge5 <- renderPlot({
+    plotChargeDis(5)
+  })
+
+
+  plotChargeDis <- function(x) {
+    if (is.null(rv$result)) { return(invisible(NULL)) }
+    charges <- rv$result@peptides[spectrum.z==x, expect.value]
+    charges <- -log10(charges)
+    plot(normalmixEM(charges), which=2, xlab2="-Log10(expectation value)")
+    lines(density(charges), col="blue", lty=2)
+    legend("topright",
+      fill=c("red", "green", "blue"),
+      legend=c("First fitted distribution", "Second fitted distribution", "Total distribution"),
+      y.intersp=1.1,
+      bty="n"
+    )
+  }
 } ##/shinyServer

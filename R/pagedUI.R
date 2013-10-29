@@ -214,13 +214,6 @@ overview.ui <- function() {
   )
 }
 
-stats.ui <- function() {
-  div(
-    h2("... Work in progress ..."),
-    p("This page will provide statistics about the identification scores of the loaded results. Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
-  )
-}
-
 prots.ui <- function() {
   div(
     div(class="well",
