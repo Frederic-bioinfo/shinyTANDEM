@@ -185,7 +185,7 @@ shinyTandemServer <- function(input, output, session) {
       return("Warning: A dataset must be loaded to obtain a choice of identified proteins")
     }
     prots <- subset(rv$result@proteins, expect.value < input$maxExpectProt &
-                    num.peptides > input$minPepNum & like(label, input$protDescFilter))
+                    num.peptides >= input$minPepNum & like(label, input$protDescFilter))
     prots <- prots[,label]
     selectInput("protSelected", label="Choose a protein:",
                        choices=prots, multiple=TRUE)
