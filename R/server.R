@@ -33,9 +33,9 @@ shinyTandemServer <- function(input, output, session) {
       
       temp <- isolate(readRDS(file=input$resultRDS$datapath))
 
-      if(! "rTResult" %in% class(temp)) {
+      if(! is(temp, "rTResult")) {
         rv$loadStateIndicator <-
-          paste("\"",input$resultRDS$name,"\"","is not a result object.", sep="")
+          paste("\"",input$resultRDS$name,"\""," is not a result object.", sep="")
         return(NULL)
       }
       
