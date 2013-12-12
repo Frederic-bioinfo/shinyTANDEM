@@ -264,8 +264,8 @@ shinyTandemServer <- function(input, output, session) {
   ######
   
   output$protExpect <- renderPlot({
+
     if (is.null(rv$result)) { return(invisible(NULL)) }
-    
     prot.e <- sort(-(rv$result@proteins$expect.value), decreasing=TRUE)
     spm.e <- sort(-log10(rv$result@peptides$expect.value), decreasing=TRUE)
 
@@ -281,6 +281,7 @@ shinyTandemServer <- function(input, output, session) {
       col="blue")
     points(spm.e, col="red", type="l")
     max.expect <- 0.01
+
     if (! is.na(rv$result@used.parameters$`output, maximum valid expectation value`)){
       max.expect <- as.numeric(rv$result@used.parameters$`output, maximum valid expectation value`)
     }
