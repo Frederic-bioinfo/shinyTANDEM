@@ -253,9 +253,39 @@ prots.ui <- function() {
 
 peps.ui <- function() {
   div(
-    h2("... Work in progress ..."),
-    p("This page will allow you to get a closer look at specific peptides IDs.
-Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
+    div(class="well",              # Peptide selection
+      h3("Peptide selection"),
+      div(class="row-fluid",       # Row for filters
+        div(class="span4",
+          textInput(inputId="pepSeqFilter",
+                    label="Filter by sequence of peptide:")
+        ),
+        div(class="span4",
+          uiOutput("pepProtFilter")
+        ),
+        div(class="span4",
+          uiOutput("pepPTMFilter")
+        )
+      ), #/row for filters
+      uiOutput("pepSelection"),
+      tags$style(type='text/css', "#pepSelected {height:200px; width: 100%;}")
+    ), #/well peptide selection
+    div(class="well", # Peptide visualization
+      h3("Selected peptide"),
+      htmlOutput("tableSelectedPep"),
+      h3("Associated proteins"),
+      htmlOutput("tableAssociatedProt"),
+      div(class="row-fluid",
+       # div(class="span6",              ## Place holder for theoretical spectra
+       #   h3("Theoretical spectra"),
+       #   uiOutput("theorSpectra")
+       # ),
+        div(class="span6",
+          h3("MS2 spectra"),
+          uiOutput("ms2Spectra")
+        )
+      ) #/ row-spectra
+    ) #/well Peptide visualization
   )
 }
 
@@ -270,10 +300,6 @@ biomart.ui <- function() {
 Please look for the next version of shinyTANDEM in the development section of Bioconductor.")
   )
 
-  ## sidebarPanel(
-  ##   h4("Use biomaRt for cross references"),
-  ##   textInput("idXref", label="ID cross-reference")
-  ## )
 }
 
 gominer.ui <- function() {

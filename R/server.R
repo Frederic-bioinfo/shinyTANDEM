@@ -26,7 +26,8 @@ shinyTandemServer <- function(input, output, session) {
         return(NULL)
       }
 
-      ## TO-DO: put this in a try-catch to recuperate the error messages yielded if the format is not recognized.
+      ## TO-DO: put this in a try-catch to recuperate the error messages
+      ## yielded if the format is not recognized.
       progressRDS <- Progress$new(session, min=0, max=1)
       on.exit(progressRDS$close())
       progressRDS$set(message="Loading RDS file into memory.", value=NULL)
@@ -294,7 +295,10 @@ shinyTandemServer <- function(input, output, session) {
    output$chargeDisUI<- renderUI({
     if (is.null(rv$result)) { return(invisible(NULL)) }
     tabs <- list()
-    for(i in names(table(rv$result@peptides$spectrum.z))){
+    ## Find the charges for which there are at least 3 spectra.
+    charges <- table(rv$result@peptides$spectrum.z)
+    charges <- names(charges)[charges>2]
+    for(i in charges){
       tabTitle <- paste("charge +", i, sep="")
       plotId <- paste("charge", i, sep="")
       tabs <- c(tabs,
@@ -338,4 +342,140 @@ shinyTandemServer <- function(input, output, session) {
       bty="n"
     )
   }
+
+
+  #########
+  ## Peptide view section
+  #########
+
+  output$pepProtFilter <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to filter peptides by protein")
+    }
+    selectInput("associatedProt", label="Choose by protein:",
+                choices=c("No Filter", rv$result@proteins[,label]),
+                selected="No Filter",
+                multiple=FALSE
+    )
+  })
+
+  output$pepPTMFilter <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to filter peptides by PTM")
+    }
+    choices.ptm <- subset(rv$result@ptm, select=c(type,modified))
+    choices.ptm <- apply(choices.ptm, 1, paste, collapse=":")
+    choices.ptm <- c("No Filter", unique(choices.ptm))
+    selectInput("associatedPTM", label="Choose by PTM:",
+                choices=choices.ptm,
+                multiple=FALSE,
+                selected="No Filter"
+    )
+  })
+
+  ## peptide selection dynamic ui
+  output$pepSelection <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded to select peptide.")
+    }
+    pep.subset <- rv$result@peptides
+    
+    ## filter by ptm if one is chosen
+    if( !is.null(input$associatedPTM) && input$associatedPTM != "No Filter"){
+      chosen.type <- strsplit(input$associatedPTM, ":")[[1]][[1]]
+      chosen.modified <- strsplit(input$associatedPTM,":")[[1]][[2]]
+      chosen.modified <- as.numeric(chosen.modified) # fix problem with leading space
+      ptm.subset <- subset(rv$result@ptm, type==chosen.type & modified==chosen.modified, select=pep.id)
+      pep.subset <- subset(pep.subset, pep.id %in% ptm.subset[,pep.id])
+    }
+    
+    # filter by protein if one is chosen
+    if( !is.null(input$associatedProt) && input$associatedProt != "No Filter") {
+      chosen.uid <- subset(rv$result@proteins, label==input$associatedProt, select=uid)[[1]]
+      pep.subset <- subset(pep.subset, prot.uid==chosen.uid)
+    }
+    # Filter by sequence
+    pep.subset <- subset(pep.subset, like(sequence, input$pepSeqFilter))
+    pep.subset <- pep.subset[order(sequence)]
+    pep.subset <- unique(pep.subset[,sequence])
+    
+    selectInput("pepSelected", label="Choose a peptide:",
+                choices=pep.subset, multiple=TRUE)
+  })
+
+  output$tableSelectedPep <- renderText({
+    if ( is.null(rv$result)){
+      return("A dataset must be loaded to see selected peptides.")
+    }
+    if ( is.null(input$pepSelected) ){
+      return("A peptide must be selected")
+    }
+    
+    pep.ids <- rv$result@peptides[sequence==input$pepSelected[[1]], 2, with=FALSE]
+    PTMs <- sapply(pep.ids[[1]], function(x){
+      ptm.subset<- subset(rv$result@ptm, pep.id==x, select=c(at, type, modified))
+      paste(apply(ptm.subset,1,paste,collapse=" "), collapse="; ")
+    })
+    tableAsHTML(cbind(
+      rv$result@peptides[sequence==input$pepSelected[[1]], c(2,1,3,4,5,6,7,9,10,11,12,14,15,16), with=FALSE],
+      PTMs
+      )
+    ) 
+  })
+  
+  output$tableAssociatedProt <- renderText({
+    if(is.null(rv$result)){
+      return("Warning: A peptide must be selected to see associated proteins")
+    }
+    if ( is.null(input$pepSelected) ){
+      return("A peptide must be selected")
+    }
+    prot.uids <- rv$result@peptides[sequence==input$pepSelected[[1]], 1, with=FALSE][[1]]
+    tableAsHTML(rv$result@proteins[uid %in% prot.uids, c(1,2,3,6,7), with=FALSE])
+  })
+
+#  output$theorSpectra <- renderUI({
+#    ### placeholder for theoretical spectra
+#  })
+
+  output$ms2Spectra <- renderUI({
+    if(is.null(rv$result)){
+      return("Warning: A dataset must be loaded.")
+    }
+    if( is.null(input$pepSelected) ) {
+      return("A peptide must be selected.")
+    }
+    spectra <- subset(rv$result@peptides,
+                      sequence==input$pepSelected,
+                      select=spectrum.id)[[1]]
+    spectra <- unique(spectra)
+    # Generate a tabset with arbitrary number of panels
+    spectra.tabs <-
+      lapply(1:length(spectra),
+        function(i){tabPanel(
+          title=spectra[i], plotOutput(paste("spectra", i, sep="")))
+        }
+      )
+    do.call(tabsetPanel, spectra.tabs)
+
+  })
+
+  ### Generate arbitrary number of ouput$spectra# variables.
+  ### To Do: Find a way to bypass the 'eval(parse(paste...)))' syntax
+  observe({
+    spectra <- NULL
+    if( ! is.null(input$pepSelected) ){
+      spectra <- unique(subset(rv$result@peptides,
+                               sequence==input$pepSelected,
+                               select=spectrum.id)[[1]])
+    }
+    for( i in 1:length(spectra)){
+      var.name <- paste("output$spectra", i, sep="")
+      eval(parse(text=
+        paste(var.name, " <- renderPlot(ms2.plot(", spectra[[i]], ", rv$result))")))
+      ## The command evaluated should look like:
+      ## output$spectra1 <- renderPlot(ms2.plot(spectra, rv$result))
+    }
+  })
+ 
 } ##/shinyServer
