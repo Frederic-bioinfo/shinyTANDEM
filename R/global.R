@@ -5,7 +5,6 @@
 ## Instead of a renderTable, we use an htmlOutput with renderText, and
 ## we add tableAsHTML(return_value) when needed to get the behaviour of renderTable.
 tableAsHTML <- function(data) {
-  require('xtable')
   classNames <- 'data table table-bordered table-condensed'
   
   if (is.null(data) || identical(data, data.frame()))
