@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.1.2
+-------------------------
+
+NEW FEATURES
+
+    o MS2 spectra can now be visualized.
+    o The 'Result Statistics' and 'Peptides view' tab are now ready.
+
+BUG FIXES
+
+    o Corrected a bug in the selection of proteins by number of peptides.
+    
+
 CHANGES IN VERSION 0.99.1
 -------------------------
 
