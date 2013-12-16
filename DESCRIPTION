@@ -11,4 +11,4 @@ Maintainer: Frederic Fournier <frederic.fournier@crchuq.ulaval.ca>
 Description: This package provides a GUI interface for rTANDEM. The GUI is primarily designed to visualize rTANDEM result object or result xml files. But it will also provides an interface for creating parameter objects, launching searches or performing conversions between R objects and xml files.
 biocViews: MassSpectrometry, Proteomics
 License: GPL-3
-Depends: rTANDEM (>= 1.3.5), shiny, mixtools, methods
+Depends: rTANDEM (>= 1.3.5), shiny, mixtools, methods, xtable

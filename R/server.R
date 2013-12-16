@@ -150,8 +150,8 @@ shinyTandemServer <- function(input, output, session) {
         params$"protein, taxon",
         rv$result@sequence.source.paths,
         params$'protein, cleavage site',
-        length(rv$result@proteins[,uid]),
-        length(rv$result@peptides[,pep.id]),
+        length(rv$result@proteins$uid),
+        length(rv$result@peptides$pep.id),
         paste(rv$result@total.spectra.assigned,
               rv$result@nb.input.spectra, sep="/"),
         params$"residue, modification mass",
@@ -187,7 +187,7 @@ shinyTandemServer <- function(input, output, session) {
     }
     prots <- subset(rv$result@proteins, expect.value < input$maxExpectProt &
                     num.peptides >= input$minPepNum & like(label, input$protDescFilter))
-    prots <- prots[,label]
+    prots <- prots$label
     selectInput("protSelected", label="Choose a protein:",
                        choices=prots, multiple=TRUE)
   })
@@ -196,8 +196,11 @@ shinyTandemServer <- function(input, output, session) {
     if(is.null(rv$result)){
       return("Warning: A dataset must be loaded to obtain a choice of identified proteins")
     }
-    tableAsHTML(rv$result@proteins[label==input$protSelected[[1]],
-                                   c(1,2,3,6,7), with=FALSE])
+    tableAsHTML(
+      subset(
+        rv$result@proteins, label==input$protSelected[[1]], c(1,2,3,6,7)
+      )
+    )
   })
 
   ### Peptides from selected protein
@@ -208,8 +211,11 @@ shinyTandemServer <- function(input, output, session) {
     if(length(input$protSelected)<1){
       return("Warning: You must select a protein to see the associated peptides.")
     }
-    selectProt <- rv$result@proteins[label==input$protSelected[[1]], uid]
-    tableAsHTML(rv$result@peptides[prot.uid==selectProt, c(2,3,4,5,6,7,9,10,11,12,14,15,16,17), with=FALSE])
+    selectProt <- rv$result@proteins$uid[rv$result@proteins$label==input$protSelected[[1]] ]
+    tableAsHTML(
+      subset(rv$result@peptides, prot.uid==selectProt, select=c(2,3,4,5,6,7,9,10,11,12,14,15,16,17)
+      )
+    )
   })
 
   ### Protein coverage
@@ -220,11 +226,11 @@ shinyTandemServer <- function(input, output, session) {
     if(length(input$protSelected)<1){
       return("Warning: You must select a protein to see the protein coverage.")
     }
-    selectedProt <- rv$result@proteins[label==input$protSelected[[1]],]
-    selectedPep <- as.data.frame(rv$result@peptides[ prot.uid==selectedProt[1,uid], ])
-    selectedMod <- as.data.frame(rv$result@ptm[pep.id %in% selectedPep$pep.id,])
+    selectedProt <- rv$result@proteins[rv$result@proteins$label==input$protSelected[[1]],]
+    selectedPep <- as.data.frame(rv$result@peptides[ rv$result@peptides$prot.uid==selectedProt$uid[[1]], ])
+    selectedMod <- as.data.frame(rv$result@ptm[rv$result@ptm$pep.id %in% selectedPep$pep.id,])
 
-    sequence <- selectedProt[1,sequence]
+    sequence <- selectedProt$sequence[[1]]
     sequence <- gsub("\\s","",sequence)
     seqLength <- nchar(sequence)
 
@@ -332,7 +338,7 @@ shinyTandemServer <- function(input, output, session) {
 
   plotChargeDis <- function(x) {
     if (is.null(rv$result)) { return(invisible(NULL)) }
-    charges <- rv$result@peptides[spectrum.z==x, expect.value]
+    charges <- rv$result@peptides$expect.value[rv$result@peptides$spectrum.z==2]
     charges <- -log10(charges)
     plot(normalmixEM(charges), which=2, xlab2="-Log10(expectation value)")
     lines(density(charges), col="blue", lty=2)
@@ -354,7 +360,7 @@ shinyTandemServer <- function(input, output, session) {
       return("Warning: A dataset must be loaded to filter peptides by protein")
     }
     selectInput("associatedProt", label="Choose by protein:",
-                choices=c("No Filter", rv$result@proteins[,label]),
+                choices=c("No Filter", rv$result@proteins$label),
                 selected="No Filter",
                 multiple=FALSE
     )
@@ -387,7 +393,7 @@ shinyTandemServer <- function(input, output, session) {
       chosen.modified <- strsplit(input$associatedPTM,":")[[1]][[2]]
       chosen.modified <- as.numeric(chosen.modified) # fix problem with leading space
       ptm.subset <- subset(rv$result@ptm, type==chosen.type & modified==chosen.modified, select=pep.id)
-      pep.subset <- subset(pep.subset, pep.id %in% ptm.subset[,pep.id])
+      pep.subset <- subset(pep.subset, pep.id %in% ptm.subset$pep.id)
     }
     
     # filter by protein if one is chosen
@@ -397,8 +403,8 @@ shinyTandemServer <- function(input, output, session) {
     }
     # Filter by sequence
     pep.subset <- subset(pep.subset, like(sequence, input$pepSeqFilter))
-    pep.subset <- pep.subset[order(sequence)]
-    pep.subset <- unique(pep.subset[,sequence])
+    pep.subset <- pep.subset$sequence[ order(pep.subset$sequence) ]
+    pep.subset <- unique(pep.subset)
     
     selectInput("pepSelected", label="Choose a peptide:",
                 choices=pep.subset, multiple=TRUE)
@@ -412,13 +418,13 @@ shinyTandemServer <- function(input, output, session) {
       return("A peptide must be selected")
     }
     
-    pep.ids <- rv$result@peptides[sequence==input$pepSelected[[1]], 2, with=FALSE]
+    pep.ids <- rv$result@peptides[[2]][rv$result@peptides$sequence==input$pepSelected]
     PTMs <- sapply(pep.ids[[1]], function(x){
       ptm.subset<- subset(rv$result@ptm, pep.id==x, select=c(at, type, modified))
       paste(apply(ptm.subset,1,paste,collapse=" "), collapse="; ")
     })
     tableAsHTML(cbind(
-      rv$result@peptides[sequence==input$pepSelected[[1]], c(2,1,3,4,5,6,7,9,10,11,12,14,15,16), with=FALSE],
+      rv$result@peptides[rv$result@peptides$sequence==input$pepSelected[[1]], c(2,1,3,4,5,6,7,9,10,11,12,14,15,16), with=FALSE],
       PTMs
       )
     ) 
@@ -431,8 +437,8 @@ shinyTandemServer <- function(input, output, session) {
     if ( is.null(input$pepSelected) ){
       return("A peptide must be selected")
     }
-    prot.uids <- rv$result@peptides[sequence==input$pepSelected[[1]], 1, with=FALSE][[1]]
-    tableAsHTML(rv$result@proteins[uid %in% prot.uids, c(1,2,3,6,7), with=FALSE])
+    prot.uids <- rv$result@peptides[[1]][rv$result@peptides$sequence==input$pepSelected[[1]] ]
+    tableAsHTML(subset(rv$result@proteins, uid %in% prot.uids, select=c(1,2,3,6,7) ) )
   })
 
 #  output$theorSpectra <- renderUI({
@@ -448,7 +454,7 @@ shinyTandemServer <- function(input, output, session) {
     }
     spectra <- subset(rv$result@peptides,
                       sequence==input$pepSelected,
-                      select=spectrum.id)[[1]]
+                      select="spectrum.id")[[1]]
     spectra <- unique(spectra)
     # Generate a tabset with arbitrary number of panels
     spectra.tabs <-
@@ -465,10 +471,11 @@ shinyTandemServer <- function(input, output, session) {
   ### To Do: Find a way to bypass the 'eval(parse(paste...)))' syntax
   observe({
     spectra <- NULL
+    warning("is null? :", is.null(input$pepSelected))
     if( ! is.null(input$pepSelected) ){
       spectra <- unique(subset(rv$result@peptides,
                                sequence==input$pepSelected,
-                               select=spectrum.id)[[1]])
+                               select="spectrum.id")[[1]])
     }
     for( i in 1:length(spectra)){
       var.name <- paste("output$spectra", i, sep="")
