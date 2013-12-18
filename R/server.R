@@ -8,47 +8,52 @@ shinyTandemServer <- function(input, output, session) {
 
   ### Load result from RDS
   loadedResultRDS <- reactive({
-    if( input$loadFromRDS > 0) {
-
+    if( input$loadFromRDS > 0) isolate({
       rv$loadStateIndicator <- NULL
-
-      ### Test if file was uploaded:
-      if( ! "data.frame" %in% class(input$resultRDS) ) {
-      rv$loadStateIndicator <-
-        "You must upload a file before loading it into memory"
-      return(NULL)
-      }
       
-      ### Catch error if file cannot be read.
-      if( file.access( isolate(input$resultRDS$datapath), mode=4) == -1 ){
+      if( ! "data.frame" %in% class(input$resultRDS) ) {
         rv$loadStateIndicator <-
-          paste("File: \"", isolate(input$resultRDS$name),"\" cannot be read.")
+          "You must upload a file before loading it into memory"
         return(NULL)
       }
 
-      ## TO-DO: put this in a try-catch to recuperate the error messages
-      ## yielded if the format is not recognized.
-      progressRDS <- Progress$new(session, min=0, max=1)
-      on.exit(progressRDS$close())
-      progressRDS$set(message="Loading RDS file into memory.", value=NULL)
-      
-      temp <- isolate(readRDS(file=input$resultRDS$datapath))
+      temp <- tryCatch(
+        expr={
+          readRDS(file=input$resultRDS$datapath)
+        },
+        warning=function(w) {
+          rv$loadStateIndicator <-
+            paste("Problem with file: \"", input$resultRDS$name, "\" :", w)
+          return(NULL)
+        },
+        error=function(e) {
+          rv$loadStateIndicator <-
+            paste("Problem with file: \"", input$resultRDS$name, "\" :", e)
+          return(NULL)
+        }
+      )
+      if( is.null(temp) ) {return(NULL)}
 
+ ### TO DO: implement a progress message for loading time.       
+ #     progressRDS <- Progress$new(session, min=0, max=1)
+ #     on.exit(progressRDS$close())
+ #     progressRDS$set(message="Loading RDS file into memory.", value=NULL)
+      
       if(! is(temp, "rTResult")) {
         rv$loadStateIndicator <-
-          paste("\"",input$resultRDS$name,"\""," is not a result object.", sep="")
+          paste("\"",isolate(input$resultRDS$name),"\""," is not a result object.", sep="")
         return(NULL)
       }
       
       rv$loadStateIndicator <- NULL
       rv$loadedDataset<- "Dataset successfully loaded from RDS file."
       return(temp)
-    }
+    })
   })
   
   ### Load result from xml
   loadedResultXML <- reactive({
-    if(  input$loadFromXML > 0) {
+    if(  input$loadFromXML > 0) isolate({
       rv$loadStateIndicator <- NULL
       
       ### Test if file was uploaded:
@@ -58,26 +63,34 @@ shinyTandemServer <- function(input, output, session) {
       return(NULL)
       }
       
-      ### Test if file can be read.
-      if( file.access(isolate(input$resultXML$datapath), mode=4) == -1){
-        rv$loadStateIndicator <-
-          paste("File: \"", isolate(input$resultXML$name),"\" cannot be read.")
-        return(NULL)
-      }
-
-      progressXML <- Progress$new(session, min=0, max=1)
-      on.exit(progressXML$close())
-
-      progressXML$set(message="Parsing XML and loading into memory. Please wait as this could take some time...", value=NULL)
+      temp <- tryCatch(
+        expr={
+          GetResultsFromXML(input$resultXML$datapath)
+        },
+        warning=function(w) {
+          rv$loadStateIndicator <-
+            paste("Problem with file: \"", input$resultXML$name, "\" :", w)
+          return(NULL)
+        },
+        error=function(e) {
+          rv$loadStateIndicator <-
+            paste("Problem with file: \"", input$resultXML$name, "\" :", e)
+          return(NULL)
+        }
+      )
+      if( is.null(temp) ) {return(NULL)}
+      
+#      progressXML <- Progress$new(session, min=0, max=1)
+#      on.exit(progressXML$close())
+#      progressXML$set(message="Parsing XML and loading into memory. Please wait as this could take some time...", value=NULL)
     
       ### To-do: put this in a tryCatch structure
-      temp<- isolate(GetResultsFromXML(input$resultXML$datapath))
       rv$loadStateIndicator <- NULL
       rv$loadedDataset<-"Dataset successfully loaded from xml file."
 
-      progressXML$close()
+#     progressXML$close()
       return(temp)
-    }
+    })
   })
 
   ### Load result from R session:
@@ -315,7 +328,6 @@ shinyTandemServer <- function(input, output, session) {
         )
       )
      }
-     warning(tabs)
      do.call(tabsetPanel,tabs)
    })
 
@@ -471,7 +483,6 @@ shinyTandemServer <- function(input, output, session) {
   ### To Do: Find a way to bypass the 'eval(parse(paste...)))' syntax
   observe({
     spectra <- NULL
-    warning("is null? :", is.null(input$pepSelected))
     if( ! is.null(input$pepSelected) ){
       spectra <- unique(subset(rv$result@peptides,
                                sequence==input$pepSelected,
