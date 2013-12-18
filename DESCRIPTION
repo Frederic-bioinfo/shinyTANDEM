@@ -1,8 +1,8 @@
 Package: shinyTANDEM
 Type: Package
 Title: Provides a GUI for rTANDEM
-Version: 1.1.3
-Date: 2013-12-16
+Version: 1.1.4
+Date: 2013-12-18
 Author@R: c(person("Frederic", "Fournier",
         email="frederic.fournier@crchuq.ulaval.ca"), person("Arnaud", 
 	"Droit", email="arnaud.droit@crchuq.ulaval.ca"))
